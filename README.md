@@ -1,6 +1,6 @@
 # Project Description
 
-This project focuses on developing and comparing multiple machine learning models to detect fraudulent transactions. The primary goals are to **accurately identify fraudulent activities** while **minimizing false positives**, ensuring a careful balance between precision and recall. The workflow includes data preprocessing, model training, evaluation, and preparation for deployment.
+This project focuses on developing and comparing multiple machine learning models to detect fraudulent transactions. The primary objectives are to **accurately identify fraudulent activities** while **minimizing false positives**, ensuring a careful balance between precision and recall. The workflow includes data preprocessing, model training, evaluation, and preparation for deployment.
 
 ## Key Components
 
@@ -12,7 +12,7 @@ This project focuses on developing and comparing multiple machine learning model
 
 2. **Model Training and Evaluation**
    - Training various classifiers: Random Forest, LightGBM, XGBoost, MLPClassifier, and Logistic Regression.
-   - Evaluating models based on metrics such as ROC-AUC, GINI coefficient, Precision, Recall, F1-Score, and computational speed.
+   - Evaluating models based on ROC-AUC, GINI coefficient, Precision, Recall, F1-Score, and computational speed.
 
 3. **Model Comparison and Selection**
    - Comparing models using consistent metrics.
@@ -20,31 +20,53 @@ This project focuses on developing and comparing multiple machine learning model
 
 ## Dataset
 
-The dataset (Credit Card Fraud Detection) contains transactions made by European cardholders in September 2013 over two days. It includes a total of 284,807 transactions, out of which 492 are fraudulent. This highly imbalanced dataset has a fraud rate of just 0.172%.
+[**Credit Card Fraud Detection Dataset**](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)  
+The dataset contains transactions made by European cardholders in September 2013 over two days, totaling 284,807 transactions. Among these, only 492 are fraudulent, resulting in an extremely imbalanced dataset (0.172% fraud).
 
-All features, except for "Time" and "Amount," are principal components obtained through PCA due to confidentiality reasons. The "Class" feature is the response variable, where `1` indicates fraud and `0` indicates non-fraud.
+- **Features V1 to V28:** Principal components obtained via PCA.  
+- **Time:** Seconds elapsed between each transaction and the first transaction in the dataset.  
+- **Amount:** Transaction amount, potentially useful for cost-sensitive learning.  
+- **Class:** Target variable (`1` = fraud, `0` = non-fraud).
 
-**Feature Details:**
-- **V1, V2, ... V28:** Principal components obtained via PCA.
-- **Time:** Seconds elapsed between each transaction and the first transaction.
-- **Amount:** Transaction amount, useful for cost-sensitive learning.
-- **Class:** The target variable (`1` for fraud, `0` for non-fraud).
+Due to confidentiality, original features and additional background information are not provided.
 
 ## Key Observations
 
-- **Class Distribution:**
-  - Non-Fraudulent: 284,315 transactions
-  - Fraudulent: 492 transactions
+- **Count:**
+  - Non-Fraudulent: 284,315  
+  - Fraudulent: 492  
+  *Fraudulent transactions represent a tiny fraction, highlighting severe class imbalance.*
 
-  The significant class imbalance emphasizes the need for techniques like SMOTE.
+- **Mean Transaction Amount:**
+  - Non-Fraudulent: $88.29  
+  - Fraudulent: $122.21  
+  *Fraudulent transactions average slightly higher amounts.*
 
-- **Transaction Amount Insights:**
-  - Fraudulent transactions have a slightly higher average value than non-fraudulent ones.
-  - Fraudulent amounts show high variability, indicating a mix of small and large fraudulent purchases.
+- **Standard Deviation:**
+  - Non-Fraudulent: $250.11  
+  - Fraudulent: $256.68  
+  *High variability in amounts for both classes, with fraudulent transactions showing slightly higher variability.*
 
-- **Statistical Highlights:**
-  - Minimum transaction amount is $0 for both classes, potentially indicating refunds or test transactions.
-  - Quartile analysis reveals that fraudulent transactions often appear as small "test" amounts or higher-value attempts.
+- **Minimum Amount (0.00):**
+  *Could indicate zero-value test transactions, refunds, or system errors.*
+
+- **Percentiles:**
+  - **25th Percentile:**
+    - Non-Fraudulent: $5.65
+    - Fraudulent: $1.00  
+    *Some fraudulent transactions are very small "test" amounts.*
+  - **50th Percentile (Median):**
+    - Non-Fraudulent: $22.00
+    - Fraudulent: $9.25  
+    *Fraudulent transactions tend to be smaller at the median.*
+  - **75th Percentile:**
+    - Non-Fraudulent: $77.05
+    - Fraudulent: $105.89  
+    *Fraudsters also operate with higher-value transactions.*
+  - **Maximum:**
+    - Non-Fraudulent: $25,691.16
+    - Fraudulent: $2,125.87  
+    *Non-fraudulent transactions can reach very high amounts, while fraudulent ones seem capped, possibly due to detection measures.*
 
 ## Model Performance Comparison for Fraud Detection
 
@@ -58,18 +80,36 @@ All features, except for "Time" and "Amount," are principal components obtained 
 
 ## Analysis of Results
 
-- **XGBoost**: Delivers the best balance of ROC-AUC, GINI, and balanced Precision/Recall. Fast training and prediction times make it highly suitable for real-time applications.
-- **LightGBM**: Strong overall performance, particularly good at catching more frauds (high recall), though it has lower precision compared to XGBoost.
-- **Random Forest**: Offers very high precision, reducing false positives, but has a longer training time and slightly lower recall.
-- **MLPClassifier**: Reasonable performance, but generally outperformed by XGBoost and LightGBM in terms of balanced metrics and speed.
-- **Logistic Regression**: Exceptional ROC-AUC and GINI but extremely low precision, making it impractical without significant adjustments (e.g., threshold tuning).
+1. **Random Forest**
+   - **Strengths:** High precision (0.8539), strong ROC-AUC and GINI.
+   - **Weaknesses:** Longer training time, moderate recall (0.7677).
+   - **Implications:** Ideal when minimizing false positives is crucial, accepting that some fraud cases are missed.
+
+2. **LightGBM**
+   - **Strengths:** Excellent ROC-AUC (0.9649), good recall (0.8081), and fast training.
+   - **Weaknesses:** Moderate precision (0.6061), lower F1 (0.6926).
+   - **Implications:** Suited for scenarios prioritizing catching more fraud cases despite more false alarms.
+
+3. **XGBoost**
+   - **Strengths:** Highest ROC-AUC (0.9668), balanced precision and recall, efficient training/prediction.
+   - **Weaknesses:** None significant.
+   - **Implications:** The best overall performer, offering a robust balance of accuracy and efficiency.
+
+4. **MLPClassifier**
+   - **Strengths:** Good precision (0.7701), decent ROC-AUC.
+   - **Weaknesses:** Lower recall (0.6768), longer training time.
+   - **Implications:** Less effective than XGBoost or LightGBM, but still viable if neural network approaches are desired.
+
+5. **Logistic Regression**
+   - **Strengths:** Highest ROC-AUC (0.9718), extremely fast training and prediction.
+   - **Weaknesses:** Very low precision (0.0558), poor F1-score.
+   - **Implications:** Requires threshold adjustments or refinements before practical use.
 
 ## Model Selection Recommendation
 
-- **XGBoost** emerges as the best-performing model, providing robust performance metrics suitable for effective fraud detection.
-- **LightGBM** serves as a strong alternative, especially if capturing more frauds (higher recall) is prioritized.
-- **Random Forest** is suitable when minimizing false positives is critical, despite its longer training time.
-- **Logistic Regression** and **MLPClassifier** require additional refinement to meet practical fraud detection demands.
+- **XGBoost** and **LightGBM** lead the pack, offering strong accuracy, efficiency, and balanced metrics.
+- **Random Forest** provides high precision but at the expense of longer training times and moderate recall.
+- **Logistic Regression** and **MLPClassifier** need further refinements to meet real-world fraud detection needs.
 
 ## License
 
